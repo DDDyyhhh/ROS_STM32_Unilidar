@@ -72,11 +72,11 @@ Use code with caution.
 【重要】硬件引脚配置 (.ioc 文件)
 本项目的引脚分配经过精心设计，以避开常见冲突。请在 STM32CubeMX 中打开 .ioc 文件，确保你的硬件接线与以下配置一致：
 功能	定时器/GPIO	STM32 引脚
-右轮 PWM	TIM3_CH1	PA6
-左轮 PWM	TIM3_CH2	PA7
+右轮 PWM	TIM3_CH4	PB1
+左轮 PWM	TIM3_CH3	PB0
 右轮编码器	TIM4_CH1/2	PB6 / PB7
 左轮编码器	TIM2_CH1/2	PA15 / PB3
-右轮方向 1	GPIO AIN1	PG0
+右轮方向 1	GPIO AIN1	PG14
 右轮方向 2	GPIO AIN2	PB15
 左轮方向 1	GPIO BIN1	PC4
 左轮方向 2	GPIO BIN2	PC5
@@ -84,7 +84,8 @@ ROS 通信	USART3	PB10 / PB11 (或你选择的其他)
 调试串口	USART1	PA9 / PA10
 控制周期	TIM6	(无引脚)
 用户按键	GPIO KEY0	PE4
-调试流程
+
+**调试流程
 本项目内置了强大的调试模式，位于 Core/Src/Control.c 的顶部。
 Generated c
 #define CONTROL_MODE 1 // 1: 调速度环, 2: 调位置环, 3: 正常运行
