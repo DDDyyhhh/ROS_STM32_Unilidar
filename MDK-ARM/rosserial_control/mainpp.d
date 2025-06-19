@@ -34,4 +34,5 @@ rosserial_control/mainpp.o: ..\Core\Src\mainpp.cpp ..\Core\Inc\mainpp.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
   ..\Core\ros_lib\geometry_msgs\Twist.h \
   ..\Core\ros_lib\geometry_msgs\Vector3.h ..\Core\Inc\main.h \
-  ..\Core\Inc\pid.h ..\Core\Inc\Motor.h
+  ..\Core\Inc\pid.h ..\Core\Inc\Motor.h \
+  ..\Core\ros_lib\std_msgs\Float32.h

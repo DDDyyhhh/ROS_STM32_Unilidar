@@ -108,6 +108,7 @@ int main(void)
 	Serial_Init(); // <<< 确保调试串口被初始化
 	Motor_Init();
 	Control_Init();
+	setup();
 	
 
 	HAL_TIM_Base_Start_IT(&htim6);
@@ -116,9 +117,9 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
   
-  // ===【关键】设定一个目标位置 ===
-  // 让小车前进 50000 个脉冲的距离
-   Control_Set_Target_Position_Left(200.0f); // 你需要去 Control.c/h 添加这个函数
+//   ===【关键】设定一个目标位置 ===
+//   让小车前进 50000 个脉冲的距离
+   //Control_Set_Target_Position_Left(200.0f); // 你需要去 Control.c/h 添加这个函数
  
 	
 	
@@ -146,28 +147,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		//loop();
+		loop();
 //		HAL_UART_Transmit(&huart3, message, sizeof(message) - 1, 100); // 100ms 超时
 //    HAL_Delay(500); // 每秒发送两次
-	    uint8_t key = Key_GetNum(); 
-			if (key == KEY0_PRES)
-			{
-					Control_Set_Target_Position_Left(500.0f);
-					Control_Increase_Target_Speed_Ticks(50.0f); // 目标速度增加 10
-			}
-				HAL_Delay(20);
+//	    uint8_t key = Key_GetNum(); 
+//			if (key == KEY0_PRES)
+//			{
+//					Control_Set_Target_Position_Left(500.0f);
+//					Control_Increase_Target_Speed_Ticks(50.0f); // 目标速度增加 10
+//			}
+//				HAL_Delay(20);
 			
 
-
-    // 主循环可以留一个小延时，防止空跑，但不影响中断
-     
-//		Motor_SetSpeed_Left(30);
-//		HAL_Delay(1000);
-//		Motor_SetSpeed_Right(10);
-//		HAL_Delay(1000);
-    //Motor_SetSpeed_Right(20);
-			
-	
 
     /* USER CODE END WHILE */
 
