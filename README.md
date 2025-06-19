@@ -67,10 +67,11 @@ void Control_Init(void)
     PID_Init(&pid_position_right, 0.1f, 0.0f, 0.0f, 80.0f, -80.0f);
 }
 Use code with caution.
- 
+ ``` 
 
-【重要】硬件引脚配置 (.ioc 文件)
+## 【重要】硬件引脚配置 (.ioc 文件)
 本项目的引脚分配经过精心设计，以避开常见冲突。请在 STM32CubeMX 中打开 .ioc 文件，确保你的硬件接线与以下配置一致：
+``` 
 功能	定时器/GPIO	STM32 引脚
 右轮 PWM	TIM3_CH4	PB1
 左轮 PWM	TIM3_CH3	PB0
@@ -84,6 +85,7 @@ ROS 通信	USART3	PB10 / PB11 (或你选择的其他)
 调试串口	USART1	PA9 / PA10
 控制周期	TIM6	(无引脚)
 用户按键	GPIO KEY0	PE4
+```
 
 **调试流程
 本项目内置了强大的调试模式，位于 Core/Src/Control.c 的顶部。
@@ -106,3 +108,6 @@ C
 设置 CONTROL_MODE 为 3。
 取消 main.c 中对 setup() 和 loop() 的注释，恢复 ROS 通信。
 现在，你可以通过在上位机发布 /cmd_vel 话题来控制你的机器人了。
+
+
+
