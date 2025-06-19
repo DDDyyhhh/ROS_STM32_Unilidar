@@ -67,7 +67,8 @@ void Control_Init(void)
     PID_Init(&pid_position_right, 0.1f, 0.0f, 0.0f, 80.0f, -80.0f);
 }
 Use code with caution.
-Markdown
+
+
 【重要】硬件引脚配置 (.ioc 文件)
 本项目的引脚分配经过精心设计，以避开常见冲突。请在 STM32CubeMX 中打开 .ioc 文件，确保你的硬件接线与以下配置一致：
 功能	定时器/GPIO	STM32 引脚
