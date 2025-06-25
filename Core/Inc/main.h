@@ -73,10 +73,10 @@ extern "C" {
 #define BIN1_GPIO_Port GPIOC
 #define BIN2_Pin GPIO_PIN_5
 #define BIN2_GPIO_Port GPIOC
+#define AIN1_Pin GPIO_PIN_14
+#define AIN1_GPIO_Port GPIOB
 #define AIN2_Pin GPIO_PIN_15
 #define AIN2_GPIO_Port GPIOB
-#define AIN1_Pin GPIO_PIN_14
-#define AIN1_GPIO_Port GPIOG
 
 /* USER CODE BEGIN Private defines */
 

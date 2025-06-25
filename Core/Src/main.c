@@ -108,7 +108,7 @@ int main(void)
 	Serial_Init(); // <<< 确保调试串口被初始化
 	Motor_Init();
 	Control_Init();
-	setup();
+	//setup();
 	
 
 	HAL_TIM_Base_Start_IT(&htim6);
@@ -119,9 +119,11 @@ int main(void)
   
 //   ===【关键】设定一个目标位置 ===
 //   让小车前进 50000 个脉冲的距离
-   //Control_Set_Target_Position_Left(200.0f); // 你需要去 Control.c/h 添加这个函数
- 
-	
+   Control_Set_Target_Position_Left(200.0f); // 你需要去 Control.c/h 添加这个函数
+	 Control_Set_Target_Position_Right(200.0f);
+	 HAL_Delay(5000);
+	 Control_Set_Target_Position_Left(1000.0f); // 你需要去 Control.c/h 添加这个函数
+	 Control_Set_Target_Position_Right(1000.0f);
 	
 	
 	
@@ -147,7 +149,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		loop();
+		//loop();
 //		HAL_UART_Transmit(&huart3, message, sizeof(message) - 1, 100); // 100ms 超时
 //    HAL_Delay(500); // 每秒发送两次
 //	    uint8_t key = Key_GetNum(); 
