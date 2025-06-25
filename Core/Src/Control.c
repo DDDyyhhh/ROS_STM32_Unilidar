@@ -23,7 +23,8 @@ PID_t pid_position_right; // <<<【新增】右轮的位置环 PID
 static float g_target_ticks_left = 0.0f;
 static float g_target_position_left = 0.0f;  // 目标位置 (单位: ticks)
 static float g_current_position_left = 0.0f; // 当前位置 (单位: ticks
-
+static float g_target_position_right = 0.0f;  // 目标位置 (单位: ticks)
+static float g_current_position_right = 0.0f; // 当前位置 (单位: ticks
 
 /**
   * @brief  【新增】增加目标速度 (单位: ticks/10ms)
@@ -40,6 +41,11 @@ void Control_Increase_Target_Speed_Ticks(float increment)
 void Control_Set_Target_Position_Left(float ticks)
 {
     g_target_position_left = ticks;
+}
+
+void Control_Set_Target_Position_Right(float ticks)
+{
+    g_target_position_right = ticks;
 }
 
 /**
@@ -98,15 +104,15 @@ void Control_Init(void)
     // 使用你已经调试好的完美参数！
     // 假设你最终调好的值是 Kp=2.5, Ki=0.8 (这只是示例)
     PID_Init(&pid_speed_left, 0.2f, 0.1f, 0.0f, 100.0f, -100.0f);
-    PID_Init(&pid_speed_right, 2.5f, 0.8f, 0.0f, 100.0f, -100.0f); // 右轮也用相同参数
+    PID_Init(&pid_speed_right, 0.2f, 0.1f, 0.0f, 100.0f, -100.0f); // 右轮也用相同参数
 		
 		
 		// === 2. 初始化【外环-位置环】PID 参数 ===
     // 位置环通常只需要 P 控制，或者一个很小的 D 控制。Ki 通常为 0。
     // P 控制器：Kp 决定了小车以多快的速度去接近目标位置。
     // OutMax/OutMin 限制了位置环输出的最大速度。
-    PID_Init(&pid_position_left, 1.0f, 0.0f, 1.0f, 80.0f, -80.0f); // Kp从0.1开始，最大速度限制在80 ticks/10ms
-    PID_Init(&pid_position_right, 0.0f, 0.0f, 0.0f, 80.0f, -80.0f);
+    PID_Init(&pid_position_left, 1.0f, 0.0f, 0.9f, 80.0f, -80.0f); // Kp从0.1开始，最大速度限制在80 ticks/10ms
+    PID_Init(&pid_position_right, 1.0f, 0.0f, 0.9f, 80.0f, -80.0f);
 		
 		
 		
@@ -236,24 +242,28 @@ void Control_Loop(void)
 
     // ==================== 右轮串级 PID 控制 (逻辑相同) ====================
     // (等你的新驱动板到了之后，取消这里的注释即可)
-    /*
-    // g_current_position_right += ticks_now_right;
-    // float target_speed_right = PID_Update(&pid_position_right, g_target_position_right, g_current_position_right);
-    // float current_speed_right = (float)ticks_now_right;
-    // int16_t pwm_out_right = (int16_t)PID_Update(&pid_speed_right, target_speed_right, current_speed_right);
-    // Motor_SetSpeed_Right(pwm_out_right);
-    */
-   Motor_SetSpeed_Right(0); // 调试期间先停止右轮
+    
+     g_current_position_right += ticks_now_right;
+     float target_speed_right = PID_Update(&pid_position_right, g_target_position_right, g_current_position_right);
+     float current_speed_right = (float)ticks_now_right;
+     int16_t pwm_out_right = (int16_t)PID_Update(&pid_speed_right, target_speed_right, current_speed_right);
+     Motor_SetSpeed_Right(pwm_out_right);
+    
+//   Motor_SetSpeed_Right(0); // 调试期间先停止右轮
 
 
     // ==================== 串口打印调试信息 ====================
     // 打印位置信息来观察定位效果
     // 格式：目标位置, 当前位置, 外环输出(目标速度), 内环输出(PWM)
-    Serial_Printf("%f,%f,%f,%d\r\n", 
+    Serial_Printf("%f,%f,%f,%d,%f,%f,%f,%d\r\n", 
                   g_target_position_left, 
                   g_current_position_left, 
                   target_speed_left, 
-                  pwm_out_left);
+                  pwm_out_left,
+									g_target_position_right, 
+                  g_current_position_right, 
+                  target_speed_right, 
+                  pwm_out_right);
 
 //************************************************************************************
 

@@ -10,8 +10,8 @@ extern TIM_HandleTypeDef htim2; // 左轮编码器
 void Motor_Init(void)
 {
     // 启动 PWM 通道
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3); // 启动 PA6 (右轮 PWM)
-    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4); // 启动 PA7 (左轮 PWM)
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3); // 启动 PB0 (右轮 PWM)
+    HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4); // 启动 PB1 (左轮 PWM)
     
     // 启动编码器接口
     HAL_TIM_Encoder_Start(&htim4, TIM_CHANNEL_ALL); // 【修正】启动 TIM4 (右轮编码器)
