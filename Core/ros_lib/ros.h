@@ -40,7 +40,10 @@
 
 namespace ros
 {
-  typedef NodeHandle_<STM32Hardware> NodeHandle; // default 25, 25, 512, 512
+  // 【最终修正】在这里直接指定所有模板参数
+  // 格式: <Hardware, MaxSubscribers, MaxPublishers, InputBufferSize, OutputBufferSize>
+  typedef NodeHandle_<STM32Hardware, 25, 25, 1024, 1024> NodeHandle;
 }
+
 
 #endif
