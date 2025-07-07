@@ -51,36 +51,132 @@
 
 extern UART_HandleTypeDef huart3;
 
+//class STM32Hardware {
+//  protected:
+//    UART_HandleTypeDef *huart;
+
+//    const static uint16_t rbuflen = 512;
+//    uint8_t rbuf[rbuflen];
+//    uint32_t rind;
+//    inline uint32_t getRdmaInd(void){ return (rbuflen - __HAL_DMA_GET_COUNTER(huart->hdmarx)) & (rbuflen - 1); }
+
+//    const static uint16_t tbuflen = 512;
+//    uint8_t tbuf[tbuflen];
+//    uint32_t twind, tfind;
+
+//  public:
+//    STM32Hardware():
+//      huart(&huart3), rind(0), twind(0), tfind(0){
+//    }
+
+//    STM32Hardware(UART_HandleTypeDef *huart_):
+//      huart(huart_), rind(0), twind(0), tfind(0){
+//    }
+//  
+//    void init(){
+//      reset_rbuf();
+//    }
+
+//    void reset_rbuf(void){
+//      HAL_UART_Receive_DMA(huart, rbuf, rbuflen);
+//    }
+
+//    int read(){
+//      int c = -1;
+//      if(rind != getRdmaInd()){
+//        c = rbuf[rind++];
+//        rind &= rbuflen - 1;
+//      }
+//      return c;
+//    }
+
+//    void flush(void){
+//      static bool mutex = false;
+
+//      if((huart->gState == HAL_UART_STATE_READY) && !mutex){
+//        mutex = true;
+
+//        if(twind != tfind){
+//          uint16_t len = tfind < twind ? twind - tfind : tbuflen - tfind;
+//          HAL_UART_Transmit_DMA(huart, &(tbuf[tfind]), len);
+//          tfind = (tfind + len) & (tbuflen - 1);
+//        }
+//        mutex = false;
+//      }
+//    }
+
+//    void write(uint8_t* data, int length){
+//      int n = length;
+//      n = n <= tbuflen ? n : tbuflen;
+
+//      int n_tail = n <= tbuflen - twind ? n : tbuflen - twind;
+//      memcpy(&(tbuf[twind]), data, n_tail);
+//      twind = (twind + n) & (tbuflen - 1);
+
+//      if(n != n_tail){
+//        memcpy(tbuf, &(data[n_tail]), n - n_tail);
+//      }
+
+//      flush();
+//    }
+
+//    unsigned long time(){ return HAL_GetTick();; }
+
+//  protected:
+//};
+
+//class STM32Hardware {
+//  public:
+//    STM32Hardware() {
+//      // 在构造函数中可以不做任何事
+//    }
+//  
+//    void init() {
+//      // 初始化时也可以不做任何事，因为 CubeMX 已经完成了
+//    }
+
+//    // 读取一个字节 (阻塞式)
+//    int read() {
+//      uint8_t c;
+//      // HAL_OK 意味着在超时时间内成功收到了1个字节
+//      if (HAL_UART_Receive(&huart3, &c, 1, 1) == HAL_OK) {
+//        return c;
+//      } else {
+//        return -1; // -1 表示没有数据或超时
+//      }
+//    }
+
+//    // 写入字节数组 (阻塞式)
+//    void write(uint8_t* data, int length) {
+//      HAL_UART_Transmit(&huart3, data, length, 100);
+//    }
+
+//    // 返回系统时间 (毫秒)
+//    unsigned long time() { 
+//      return HAL_GetTick();
+//    }
+//};
+
 class STM32Hardware {
   protected:
     UART_HandleTypeDef *huart;
-
-    const static uint16_t rbuflen = 512;
+    const static uint16_t rbuflen = 1024; // 接收环形缓冲区大小
     uint8_t rbuf[rbuflen];
     uint32_t rind;
+    // 直接通过 DMA 寄存器计算当前缓冲区写入位置
     inline uint32_t getRdmaInd(void){ return (rbuflen - __HAL_DMA_GET_COUNTER(huart->hdmarx)) & (rbuflen - 1); }
 
-    const static uint16_t tbuflen = 512;
-    uint8_t tbuf[tbuflen];
-    uint32_t twind, tfind;
-
   public:
-    STM32Hardware():
-      huart(&huart3), rind(0), twind(0), tfind(0){
-    }
-
-    STM32Hardware(UART_HandleTypeDef *huart_):
-      huart(huart_), rind(0), twind(0), tfind(0){
-    }
+    STM32Hardware(): huart(&huart3), rind(0) {}
   
     void init(){
-      reset_rbuf();
-    }
-
-    void reset_rbuf(void){
+      // 启动 DMA 循环接收
       HAL_UART_Receive_DMA(huart, rbuf, rbuflen);
+      // 使能空闲中断
+      __HAL_UART_ENABLE_IT(huart, UART_IT_IDLE);
     }
 
+    // 从环形缓冲区读取一个字节
     int read(){
       int c = -1;
       if(rind != getRdmaInd()){
@@ -90,39 +186,14 @@ class STM32Hardware {
       return c;
     }
 
-    void flush(void){
-      static bool mutex = false;
-
-      if((huart->gState == HAL_UART_STATE_READY) && !mutex){
-        mutex = true;
-
-        if(twind != tfind){
-          uint16_t len = tfind < twind ? twind - tfind : tbuflen - tfind;
-          HAL_UART_Transmit_DMA(huart, &(tbuf[tfind]), len);
-          tfind = (tfind + len) & (tbuflen - 1);
-        }
-        mutex = false;
-      }
-    }
-
+    // 写入数据 (阻塞式)
     void write(uint8_t* data, int length){
-      int n = length;
-      n = n <= tbuflen ? n : tbuflen;
-
-      int n_tail = n <= tbuflen - twind ? n : tbuflen - twind;
-      memcpy(&(tbuf[twind]), data, n_tail);
-      twind = (twind + n) & (tbuflen - 1);
-
-      if(n != n_tail){
-        memcpy(tbuf, &(data[n_tail]), n - n_tail);
-      }
-
-      flush();
+      HAL_UART_Transmit(huart, data, length, 100);
     }
 
-    unsigned long time(){ return HAL_GetTick();; }
-
-  protected:
+    unsigned long time(){ return HAL_GetTick(); }
 };
+
+
 
 #endif

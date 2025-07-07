@@ -32,6 +32,7 @@
 #include "Control.h"
 #include "Key.h"
 #include "Encoder.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -108,24 +109,56 @@ int main(void)
 	Serial_Init(); // <<< 确保调试串口被初始化
 	Motor_Init();
 	Control_Init();
-	//setup();
+	setup();
 	
 
 	HAL_TIM_Base_Start_IT(&htim6);
 	
 
 
-  /* USER CODE BEGIN 2 */
-  
 //   ===【关键】设定一个目标位置 ===
 //   让小车前进 50000 个脉冲的距离
-   Control_Set_Target_Position_Left(200.0f); // 你需要去 Control.c/h 添加这个函数
-	 Control_Set_Target_Position_Right(200.0f);
-	 HAL_Delay(5000);
-	 Control_Set_Target_Position_Left(1000.0f); // 你需要去 Control.c/h 添加这个函数
-	 Control_Set_Target_Position_Right(1000.0f);
-	
-	
+//   Control_Set_Target_Position_Left(200.0f); // 你需要去 Control.c/h 添加这个函数
+//	 Control_Set_Target_Position_Right(200.0f);
+//	 HAL_Delay(5000);
+//	 Control_Set_Target_Position_Left(1000.0f); // 你需要去 Control.c/h 添加这个函数
+//	 Control_Set_Target_Position_Right(1000.0f);
+	//*******************实验测试轮子编码器值和实际运动的值************************************
+//	while(Key_GetNum() != KEY0_PRES)
+//  {
+//      // 等待...
+//      HAL_Delay(10);
+//  }
+//  
+//  Serial_Printf("Calibration Test Started. Robot will move forward for 5 seconds.\r\n");
+//  HAL_Delay(500); // 延时一下，给你拿开手的时间
+
+//  // 2. 在开始运动前，清零编码器计数
+//  Encoder_Get_Left(); 
+//  Encoder_Get_Right();
+
+//  // 3. 让左右轮以一个较低的、恒定的速度同向转动
+//  int16_t test_pwm = 25; // 使用一个较小的 PWM 值，例如 25%
+//  Motor_SetSpeed_Left(test_pwm);
+//  Motor_SetSpeed_Right(test_pwm); // 确保两个轮子都正转
+//  
+//  // 4. 持续前进 5 秒
+//  HAL_Delay(5000); 
+//  
+//  // 5. 停止电机
+//  Motor_SetSpeed_Left(0);
+//  Motor_SetSpeed_Right(0);
+//  
+//  // 6. 读取这 5 秒内累积的总脉冲数
+//  int32_t total_ticks_left = Encoder_Get_Left();
+//  int32_t total_ticks_right = Encoder_Get_Right();
+//  
+//  // 7. 通过串口打印出最终结果
+//  Serial_Printf("========== Calibration Complete! ==========\r\n");
+//  Serial_Printf("Please measure the distance traveled (in cm).\r\n");
+//  Serial_Printf("Total Ticks Left: %ld\r\n", total_ticks_left);
+//  Serial_Printf("Total Ticks Right: %ld\r\n", total_ticks_right);
+//	
 	
   // 按键(PE4)未被按下时，HAL_GPIO_ReadPin 返回 GPIO_PIN_SET (高电平)
 //  while(HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin) != GPIO_PIN_RESET)
@@ -149,7 +182,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		//loop();
+		loop();
 //		HAL_UART_Transmit(&huart3, message, sizeof(message) - 1, 100); // 100ms 超时
 //    HAL_Delay(500); // 每秒发送两次
 //	    uint8_t key = Key_GetNum(); 
@@ -159,7 +192,10 @@ int main(void)
 //					Control_Increase_Target_Speed_Ticks(50.0f); // 目标速度增加 10
 //			}
 //				HAL_Delay(20);
-			
+
+
+//		HAL_GPIO_TogglePin(LED0_GPIO_Port, LED0_Pin);
+//    HAL_Delay(500);
 
 
     /* USER CODE END WHILE */
@@ -233,8 +269,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     // 检查是否是我们的控制周期定时器 TIM6
     if (htim->Instance == TIM6)
     {
-        // 在这里执行所有需要固定频率运行的控制逻辑
-        Control_Loop(); 
+        
+            Control_Loop();  
     }
 }
 

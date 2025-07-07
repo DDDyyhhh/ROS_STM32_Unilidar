@@ -12,13 +12,14 @@
 extern "C"
 {
 #endif
-    
+extern float linear_velocity_x;
+extern float angular_velocity_z;    
 void setup(void);
 void loop(void);
 extern double vel[3];
 void rosserial_rx_cb(void); // 用于接收回调
 void rosserial_tx_cb(void); // 用于发送回调
-    
+void rosserial_idle_cb(void);    
 #ifdef __cplusplus
 }
 #endif

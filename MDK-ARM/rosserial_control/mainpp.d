@@ -35,4 +35,14 @@ rosserial_control/mainpp.o: ..\Core\Src\mainpp.cpp ..\Core\Inc\mainpp.h \
   ..\Core\ros_lib\geometry_msgs\Twist.h \
   ..\Core\ros_lib\geometry_msgs\Vector3.h ..\Core\Inc\main.h \
   ..\Core\Inc\pid.h ..\Core\Inc\Motor.h \
-  ..\Core\ros_lib\std_msgs\Float32.h
+  ..\Core\ros_lib\std_msgs\Float32.h ..\Core\ros_lib\nav_msgs\Odometry.h \
+  ..\Core\ros_lib\std_msgs\Header.h \
+  ..\Core\ros_lib\geometry_msgs\PoseWithCovariance.h \
+  ..\Core\ros_lib\geometry_msgs\Pose.h \
+  ..\Core\ros_lib\geometry_msgs\Point.h \
+  ..\Core\ros_lib\geometry_msgs\Quaternion.h \
+  ..\Core\ros_lib\geometry_msgs\TwistWithCovariance.h \
+  ..\Core\ros_lib\tf\transform_broadcaster.h \
+  ..\Core\ros_lib\tf\tfMessage.h \
+  ..\Core\ros_lib\geometry_msgs\TransformStamped.h \
+  ..\Core\ros_lib\geometry_msgs\Transform.h ..\Core\ros_lib\tf\tf.h
