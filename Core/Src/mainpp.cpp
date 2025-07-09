@@ -65,6 +65,7 @@ geometry_msgs::TransformStamped odom_trans;
 tf::TransformBroadcaster broadcaster;
 
 char base_link[] = "/base_link";
+
 char odom[] = "/odom";
 
 
@@ -89,34 +90,36 @@ void setup(void)
 }
 void loop(void)
 {
-    // 1. 获取最新的时间戳
     ros::Time current_time = nh.now();
-//		static unsigned long last_odom_publish_time = 0;
-//		
-//		if (HAL_GetTick() - last_odom_publish_time > 20) {
-    // 2. 填充并发布 odom -> base_link 的 TF 变换
+    
+    // 1. 填充并发布 odom -> base_link 的 TF 变换
     odom_trans.header.stamp = current_time;
     odom_trans.header.frame_id = odom;
-    odom_trans.child_frame_id = base_link;
+    odom_trans.child_frame_id = base_link; // <<<【修正】统一为 base_link
     odom_trans.transform.translation.x = g_pos_x_cm / 100.0;
     odom_trans.transform.translation.y = g_pos_y_cm / 100.0;
     odom_trans.transform.translation.z = 0.0;
     odom_trans.transform.rotation = tf::createQuaternionFromYaw(g_pos_th_rad);
     broadcaster.sendTransform(odom_trans);
 
-    // 3. 填充并发布 Odometry 消息
+    // 2. 填充并发布 Odometry 消息
     odom_msg.header.stamp = current_time;
     odom_msg.header.frame_id = odom;
+    odom_msg.child_frame_id = base_link; // <<<【修正】统一为 base_link
     odom_msg.pose.pose.position.x = g_pos_x_cm / 100.0;
     odom_msg.pose.pose.position.y = g_pos_y_cm / 100.0;
     odom_msg.pose.pose.orientation = odom_trans.transform.rotation;
-    odom_msg.child_frame_id = base_link;
     odom_msg.twist.twist.linear.x = g_vel_vx_cmps / 100.0;
     odom_msg.twist.twist.angular.z = g_vel_vth_radps;
+    // 【重要】填充协方差矩阵，告诉上层算法里程计的可信度
+    // 这里我们先用一个简化的、比较理想的协方差
+    odom_msg.pose.covariance[0] = 0.001;
+    odom_msg.pose.covariance[7] = 0.001;
+    odom_msg.pose.covariance[35] = 0.003;
+    odom_msg.twist.covariance[0] = 0.001;
+    odom_msg.twist.covariance[35] = 0.003;
     odom_pub.publish(&odom_msg);
-    //}
-		
-    // 4. 执行一次 ROS 消息处理
+    
     nh.spinOnce();
 }
 
