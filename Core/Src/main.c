@@ -182,7 +182,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-		loop();
+		//loop();
 //		HAL_UART_Transmit(&huart3, message, sizeof(message) - 1, 100); // 100ms 超时
 //    HAL_Delay(500); // 每秒发送两次
 //	    uint8_t key = Key_GetNum(); 
@@ -266,12 +266,39 @@ void SystemClock_Config(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    // 检查是否是我们的控制周期定时器 TIM6
-    if (htim->Instance == TIM6)
+    // 首先，检查中断是否来自于我们的心跳定时器 TIM6
+  if (htim->Instance == TIM6)
+  {
+    // 定义一个静态变量作为任务调度计数器
+    // static 变量只会在第一次调用时初始化为0，之后会保留它的值
+    static uint16_t task_scheduler_counter = 0;
+    
+    // 每次中断，计数器加 1
+    task_scheduler_counter++;
+
+    // ============ 任务1: PID 控制循环 (目标频率: 100Hz) ============
+    // 100Hz 的周期是 10ms。因为当前中断是 1ms 一次，所以每 10 次中断执行一次。
+    if (task_scheduler_counter % 1 == 0)
     {
-        
-            Control_Loop();  
+        // 调用主控制循环
+        Control_Loop();
     }
+
+    // ============ 任务2: ROS 通信循环 (目标频率: 50Hz) ============
+    // 50Hz 的周期是 20ms。所以每 20 次中断执行一次。
+    if (task_scheduler_counter % 20 == 0)
+    {
+        // 调用 ROS 的主处理函数
+        loop(); 
+    }
+    
+    // 为了防止计数器溢出，在计满一个大周期后将其清零
+    // 例如，我们可以选择 100ms (100次中断) 或 1秒 (1000次中断) 作为一个大周期
+    if (task_scheduler_counter >= 1000)
+    {
+        task_scheduler_counter = 0;
+    }
+  }
 }
 
 void Self_Check_Motors(void)

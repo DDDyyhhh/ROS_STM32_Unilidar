@@ -39,8 +39,8 @@ float g_vel_vth_radps = 0.0f; // 机器人的角速度 (rad/s)
 
 // ... (物理参数，确保单位是 cm) ...
 
-const float WHEEL_SEPARATION_CM = 21.3f; //两个驱动轮（或两条履带）中心线之间的距离，单位是厘米 (cm)
-const float TICKS_PER_CM = 121.97f; // (根据你的标定值修改)
+const float WHEEL_SEPARATION_CM = 20.8f; //两个驱动轮（或两条履带）中心线之间的距离，单位是厘米 (cm)
+const float TICKS_PER_CM = 119.58f; // (根据你的标定值修改)
 const float CONTROL_PERIOD_S = 0.01f; // <<<【修复】添加缺失的常量定义
 
 extern float linear_velocity_x;  // 来自 mainpp.cpp (单位: m/s)
@@ -147,8 +147,8 @@ void Control_Init(void)
     PID_Init(&pid_position_right, 5.0f, 0.0f, 0.0f, 80.0f, -80.0f);
 		
 		#elif (CONTROL_MODE ==   4)
-		PID_Init(&pid_speed_left, 0.87f, 0.0f, 0.0f, 100.0f, -100.0f);
-    PID_Init(&pid_speed_right, 0.87f, 0.0f, 0.0f, 100.0f, -100.0f); // 右轮也用相同参数
+		PID_Init(&pid_speed_left, 0.9135f, 0.0f, 0.0f, 100.0f, -100.0f);
+    PID_Init(&pid_speed_right, 0.9135f, 0.0f, 0.0f, 100.0f, -100.0f); // 右轮也用相同参数
 
 		
 		#endif
@@ -352,6 +352,9 @@ void Control_Loop(void)
     g_vel_vx_cmps = (current_speed_right + current_speed_left) / 2.0f;
     g_vel_vth_radps = (current_speed_right - current_speed_left) / WHEEL_SEPARATION_CM;
     
+		// 【修正】如果前进时 x 为负，在这里取反
+		g_vel_vx_cmps = -g_vel_vx_cmps;
+		
     // b. 对位姿进行积分
     float dt = CONTROL_PERIOD_S;
     g_pos_x_cm += g_vel_vx_cmps * cos(g_pos_th_rad) * dt;
