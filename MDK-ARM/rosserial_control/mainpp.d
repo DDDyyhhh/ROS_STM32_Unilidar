@@ -45,4 +45,5 @@ rosserial_control/mainpp.o: ..\Core\Src\mainpp.cpp ..\Core\Inc\mainpp.h \
   ..\Core\ros_lib\tf\transform_broadcaster.h \
   ..\Core\ros_lib\tf\tfMessage.h \
   ..\Core\ros_lib\geometry_msgs\TransformStamped.h \
-  ..\Core\ros_lib\geometry_msgs\Transform.h ..\Core\ros_lib\tf\tf.h
+  ..\Core\ros_lib\geometry_msgs\Transform.h ..\Core\ros_lib\tf\tf.h \
+  ..\Core\ros_lib\geometry_msgs\Vector3Stamped.h

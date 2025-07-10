@@ -1,7 +1,7 @@
 // PID.c
 
 #include "PID.h"
-
+#include <math.h>
 /**
   * @brief  初始化一个 PID 控制器结构体
   * @param  p 指向 PID 结构体的指针
@@ -71,6 +71,12 @@ float PID_Update(PID_t *p, float Target, float Actual)
     p->Out = p->Kp * p->Error0                           // P
            + p->Ki * p->ErrorInt                         // I
            + p->Kd * (p->Error0 - p->Error1);            // D
+					 
+					 
+		if (p->Target == 0.0f && fabs(p->Actual) < 0.5f)
+    {
+        p->ErrorInt = 0;
+    }
 
     // 输出限幅
     if (p->Out > p->OutMax)
