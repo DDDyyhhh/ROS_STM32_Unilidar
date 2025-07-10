@@ -8,7 +8,20 @@
 #include <nav_msgs/Odometry.h>     // <<< 包含 Odometry 消息
 #include <tf/transform_broadcaster.h> // <<< 包含 tf 广播头文件
 #include <tf/tf.h>
+#include "geometry_msgs/Vector3Stamped.h"
 double vel[3];
+
+// === 【新增】PID 调试信息发布者 ===
+geometry_msgs::Vector3Stamped pid_debug_msg;
+ros::Publisher pid_debug_pub("pid_debug", &pid_debug_msg);
+char debug_frame[] = "pid_debug_frame"; // 随便起一个 frame_id
+
+// 从 C 代码获取 PID 调试数据
+extern "C" {
+  extern float g_target_speed_left_cmps_debug;
+  extern float g_current_speed_left_cmps_debug;
+  extern int16_t g_pwm_out_left_debug;
+}
 
 // === C/C++ 共享变量 ===
 extern "C" {
@@ -86,7 +99,7 @@ void setup(void)
   nh.subscribe(sub_cmd_vel);
   nh.advertise(odom_pub);
   broadcaster.init(nh); // 初始化 TF 广播
-	
+	nh.advertise(pid_debug_pub);
 }
 void loop(void)
 {
@@ -119,6 +132,14 @@ void loop(void)
     odom_msg.twist.covariance[0] = 0.001;
     odom_msg.twist.covariance[35] = 0.003;
     odom_pub.publish(&odom_msg);
+		
+		// 可以在这里也加上频率控制，或者每次都发
+    pid_debug_msg.header.stamp = nh.now();
+    pid_debug_msg.header.frame_id = debug_frame;
+    pid_debug_msg.vector.x = g_target_speed_left_cmps_debug; // 目标速度
+    pid_debug_msg.vector.y = g_current_speed_left_cmps_debug; // 实际速度
+    pid_debug_msg.vector.z = g_pwm_out_left_debug;           // PWM 输出
+    pid_debug_pub.publish(&pid_debug_msg);
     
     nh.spinOnce();
 }

@@ -39,12 +39,19 @@ float g_vel_vth_radps = 0.0f; // 机器人的角速度 (rad/s)
 
 // ... (物理参数，确保单位是 cm) ...
 
-const float WHEEL_SEPARATION_CM = 20.8f; //两个驱动轮（或两条履带）中心线之间的距离，单位是厘米 (cm)
+const float WHEEL_SEPARATION_CM = 22.0f; //两个驱动轮（或两条履带）中心线之间的距离，单位是厘米 (cm)
 const float TICKS_PER_CM = 119.58f; // (根据你的标定值修改)
 const float CONTROL_PERIOD_S = 0.01f; // <<<【修复】添加缺失的常量定义
 
 extern float linear_velocity_x;  // 来自 mainpp.cpp (单位: m/s)
 extern float angular_velocity_z; // 来自 mainpp.cpp (单位: rad/s)
+
+float g_target_speed_left_cmps_debug = 0.0f;
+float g_current_speed_left_cmps_debug = 0.0f;
+int16_t g_pwm_out_left_debug = 0;
+float g_target_speed_right_cmps_debug = 0.0f;
+float g_current_speed_right_cmps_debug = 0.0f;
+int16_t g_pwm_out_right_debug = 0;
 
 /**
   * @brief  根据编码器脉冲数和标定系数计算线速度 (cm/s)
@@ -147,8 +154,8 @@ void Control_Init(void)
     PID_Init(&pid_position_right, 5.0f, 0.0f, 0.0f, 80.0f, -80.0f);
 		
 		#elif (CONTROL_MODE ==   4)
-		PID_Init(&pid_speed_left, 0.9135f, 0.0f, 0.0f, 100.0f, -100.0f);
-    PID_Init(&pid_speed_right, 0.9135f, 0.0f, 0.0f, 100.0f, -100.0f); // 右轮也用相同参数
+		PID_Init(&pid_speed_left, 1.0f, 0.0f, 0.0f, 100.0f, -100.0f);
+    PID_Init(&pid_speed_right, 1.0f, 0.0f, 0.0f, 100.0f, -100.0f); // 右轮也用相同参数
 
 		
 		#endif
@@ -350,7 +357,7 @@ void Control_Loop(void)
     
     // a. 计算机器人的实际线速度和角速度
     g_vel_vx_cmps = (current_speed_right + current_speed_left) / 2.0f;
-    g_vel_vth_radps = (current_speed_right - current_speed_left) / WHEEL_SEPARATION_CM;
+    g_vel_vth_radps = -(current_speed_right - current_speed_left) / WHEEL_SEPARATION_CM;
     
 		// 【修正】如果前进时 x 为负，在这里取反
 		g_vel_vx_cmps = -g_vel_vx_cmps;
@@ -360,6 +367,10 @@ void Control_Loop(void)
     g_pos_x_cm += g_vel_vx_cmps * cos(g_pos_th_rad) * dt;
     g_pos_y_cm += g_vel_vx_cmps * sin(g_pos_th_rad) * dt;
     g_pos_th_rad += g_vel_vth_radps * dt;
+		
+		g_target_speed_left_cmps_debug = target_speed_right_cmps;
+    g_current_speed_left_cmps_debug = current_speed_right;
+    g_pwm_out_left_debug = pwm_right;
 
     // (可选) 角度规范化到 -PI 到 PI
     // if (g_pos_th_rad > 3.14159f) g_pos_th_rad -= 2 * 3.14159f;
