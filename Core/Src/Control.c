@@ -27,15 +27,7 @@ static float g_current_position_left = 0.0f; // 当前位置 (单位: ticks
 static float g_target_position_right = 0.0f;  // 目标位置 (单位: ticks)
 static float g_current_position_right = 0.0f; // 当前位置 (单位: ticks
 
-// ==================== 【新增】里程计全局变量 ====================
-// 位姿 (pose)
-float g_pos_x_cm = 0.0f;  // 机器人在 odom 坐标系下的 x 坐标 (cm)
-float g_pos_y_cm = 0.0f;  // 机器人在 odom 坐标系下的 y 坐标 (cm)
-float g_pos_th_rad = 0.0f;// 机器人在 odom 坐标系下的朝向 (弧度)
 
-// 速度 (twist)
-float g_vel_vx_cmps = 0.0f; // 机器人前进方向的线速度 (cm/s)
-float g_vel_vth_radps = 0.0f; // 机器人的角速度 (rad/s)
 
 // ... (物理参数，确保单位是 cm) ...
 
@@ -352,29 +344,7 @@ void Control_Loop(void)
     int16_t pwm_right = (int16_t)PID_Update(&pid_speed_right, target_speed_right_cmps, current_speed_right);
     Motor_SetSpeed_Right(pwm_right);
 
-    // ============ 3. 更新并计算里程计 (运动学正解) ============
-    // 使用【实际测量】的速度来计算里程计，而不是目标速度
     
-    // a. 计算机器人的实际线速度和角速度
-    g_vel_vx_cmps = (current_speed_right + current_speed_left) / 2.0f;
-    g_vel_vth_radps = -(current_speed_right - current_speed_left) / WHEEL_SEPARATION_CM;
-    
-		// 【修正】如果前进时 x 为负，在这里取反
-		g_vel_vx_cmps = -g_vel_vx_cmps;
-		
-    // b. 对位姿进行积分
-    float dt = CONTROL_PERIOD_S;
-    g_pos_x_cm += g_vel_vx_cmps * cos(g_pos_th_rad) * dt;
-    g_pos_y_cm += g_vel_vx_cmps * sin(g_pos_th_rad) * dt;
-    g_pos_th_rad += g_vel_vth_radps * dt;
-		
-		g_target_speed_left_cmps_debug = target_speed_right_cmps;
-    g_current_speed_left_cmps_debug = current_speed_right;
-    g_pwm_out_left_debug = pwm_right;
-
-    // (可选) 角度规范化到 -PI 到 PI
-    // if (g_pos_th_rad > 3.14159f) g_pos_th_rad -= 2 * 3.14159f;
-    // if (g_pos_th_rad < -3.14159f) g_pos_th_rad += 2 * 3.14159f;
 
 #endif
 

@@ -27,9 +27,8 @@ extern "C" {
 extern "C" {
   float linear_velocity_x = 0.0f;  // m/s
   float angular_velocity_z = 0.0f; // rad/s
-  // 从 Control.c 获取里程计数据
-  extern float g_pos_x_cm, g_pos_y_cm, g_pos_th_rad;
-  extern float g_vel_vx_cmps, g_vel_vth_radps;
+ 
+  
 }
 
 // 声明由 C 文件实现的接口函数
@@ -69,18 +68,6 @@ void vel_callback(const geometry_msgs::Twist &msg)
 ros::NodeHandle nh;
 ros::Subscriber<geometry_msgs::Twist> sub_cmd_vel("/cmd_vel", cmd_vel_cb);
 
-// 里程计发布
-nav_msgs::Odometry odom_msg;
-ros::Publisher odom_pub("odom", &odom_msg);
-
-// TF 广播
-geometry_msgs::TransformStamped odom_trans;
-tf::TransformBroadcaster broadcaster;
-
-char base_link[] = "/base_link";
-
-char odom[] = "/odom";
-
 
 
 //extern "C" {
@@ -97,41 +84,13 @@ void setup(void)
 {
   nh.initNode();
   nh.subscribe(sub_cmd_vel);
-  nh.advertise(odom_pub);
-  broadcaster.init(nh); // 初始化 TF 广播
 	nh.advertise(pid_debug_pub);
 }
 void loop(void)
 {
     ros::Time current_time = nh.now();
     
-    // 1. 填充并发布 odom -> base_link 的 TF 变换
-    odom_trans.header.stamp = current_time;
-    odom_trans.header.frame_id = odom;
-    odom_trans.child_frame_id = base_link; // <<<【修正】统一为 base_link
-    odom_trans.transform.translation.x = g_pos_x_cm / 100.0;
-    odom_trans.transform.translation.y = g_pos_y_cm / 100.0;
-    odom_trans.transform.translation.z = 0.0;
-    odom_trans.transform.rotation = tf::createQuaternionFromYaw(g_pos_th_rad);
-    broadcaster.sendTransform(odom_trans);
-
-    // 2. 填充并发布 Odometry 消息
-    odom_msg.header.stamp = current_time;
-    odom_msg.header.frame_id = odom;
-    odom_msg.child_frame_id = base_link; // <<<【修正】统一为 base_link
-    odom_msg.pose.pose.position.x = g_pos_x_cm / 100.0;
-    odom_msg.pose.pose.position.y = g_pos_y_cm / 100.0;
-    odom_msg.pose.pose.orientation = odom_trans.transform.rotation;
-    odom_msg.twist.twist.linear.x = g_vel_vx_cmps / 100.0;
-    odom_msg.twist.twist.angular.z = g_vel_vth_radps;
-    // 【重要】填充协方差矩阵，告诉上层算法里程计的可信度
-    // 这里我们先用一个简化的、比较理想的协方差
-    odom_msg.pose.covariance[0] = 0.001;
-    odom_msg.pose.covariance[7] = 0.001;
-    odom_msg.pose.covariance[35] = 0.003;
-    odom_msg.twist.covariance[0] = 0.001;
-    odom_msg.twist.covariance[35] = 0.003;
-    odom_pub.publish(&odom_msg);
+   
 		
 		// 可以在这里也加上频率控制，或者每次都发
     pid_debug_msg.header.stamp = nh.now();

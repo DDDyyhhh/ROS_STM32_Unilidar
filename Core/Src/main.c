@@ -285,8 +285,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
 
     // ============ 任务2: ROS 通信循环 (目标频率: 50Hz) ============
-    // 50Hz 的周期是 20ms。所以每 20 次中断执行一次。
-    if (task_scheduler_counter % 20 == 0)
+    // 50Hz 的周期是 10ms。所以每 10 次中断执行一次。
+    if (task_scheduler_counter % 10 == 0)
     {
         // 调用 ROS 的主处理函数
         loop(); 
