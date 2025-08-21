@@ -1,5 +1,3 @@
---- 
-
 # ROS & STM32 Tracked Chassis Control Project
 
 This is a low-level control project for a tracked robot based on the STM32F407ZGT6. It communicates with a host computer (e.g., a Raspberry Pi or Orange Pi running ROS) via the `rosserial` protocol, implementing closed-loop PID control for both the speed and position of the chassis motors.
@@ -120,8 +118,6 @@ This project includes a robust debugging mode, configured at the top of `Core/Sr
 2.  Uncomment the `setup()` and `loop()` calls in `main.c` to re-enable ROS communication.
 
 Now, you can control your robot by publishing to the `/cmd_vel` topic from your host computer.
-
-
 
 # ROS 与 STM32 履带底盘控制项目
 
