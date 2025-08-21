@@ -1,5 +1,3 @@
-好的，这是为您翻译的英文版 `README.md` 文件。我保留了原有的格式和重点，并使用了在机器人和嵌入式领域中通用的技术术语。
-
 ---
 
 # ROS & STM32 Tracked Chassis Control Project
