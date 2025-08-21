@@ -1,4 +1,4 @@
----
+--- 
 
 # ROS & STM32 Tracked Chassis Control Project
 
@@ -120,8 +120,6 @@ This project includes a robust debugging mode, configured at the top of `Core/Sr
 2.  Uncomment the `setup()` and `loop()` calls in `main.c` to re-enable ROS communication.
 
 Now, you can control your robot by publishing to the `/cmd_vel` topic from your host computer.
-
-
 
 
 
